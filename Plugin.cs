@@ -22,6 +22,7 @@ namespace CopyBuildingMod
 
         private ConfigEntry<bool> _copySettings;
         private ConfigEntry<float> _maxCopyDistance;
+        private ConfigEntry<string> _copyBinding;
 
         private InputAction _copyAction;
         private CopiedBuildingContext _copiedContext;
@@ -49,8 +50,13 @@ namespace CopyBuildingMod
                 60f,
                 "Maximum raycast distance used to detect a building to copy.");
 
-            _copyAction = new InputAction("CopyBuilding", InputActionType.Button, "<Mouse>/middleButton");
-            _copyAction.Enable();
+            _copyBinding = Config.Bind(
+                "General",
+                "CopyBinding",
+                "<Mouse>/middleButton",
+                "Input binding for copy action. Examples: <Mouse>/middleButton, <Keyboard>/c");
+
+            ConfigureCopyAction();
 
             Harmony.PatchAll();
             Logger.LogInfo($"{PluginName} {PluginVersion} loaded.");
@@ -62,6 +68,48 @@ namespace CopyBuildingMod
             _copyAction?.Dispose();
             Harmony.UnpatchSelf();
             _instance = null;
+        }
+
+        private void ConfigureCopyAction()
+        {
+            _copyAction?.Disable();
+            _copyAction?.Dispose();
+
+            string bindingPath = NormalizeBindingPath(_copyBinding.Value);
+
+            try
+            {
+                _copyAction = new InputAction("CopyBuilding", InputActionType.Button, bindingPath);
+                _copyAction.Enable();
+                Logger.LogInfo($"Copy binding set to: {bindingPath}");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning($"Invalid CopyBinding '{_copyBinding.Value}': {ex.Message}. Falling back to <Mouse>/middleButton.");
+                _copyAction = new InputAction("CopyBuilding", InputActionType.Button, "<Mouse>/middleButton");
+                _copyAction.Enable();
+            }
+        }
+
+        private static string NormalizeBindingPath(string configured)
+        {
+            if (string.IsNullOrWhiteSpace(configured))
+            {
+                return "<Mouse>/middleButton";
+            }
+
+            string trimmed = configured.Trim();
+            if (trimmed.Contains("<"))
+            {
+                return trimmed;
+            }
+
+            if (trimmed.Contains("/"))
+            {
+                return "<Mouse>/" + trimmed.TrimStart('/');
+            }
+
+            return "<Mouse>/" + trimmed;
         }
 
         private void Update()
