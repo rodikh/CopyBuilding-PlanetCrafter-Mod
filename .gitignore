@@ -1,0 +1,53 @@
+# Build outputs (.NET / MSBuild)
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+out/
+publish/
+dist/
+
+# NuGet
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Visual Studio
+.vs/
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+*.rsuser
+*.VC.db
+*.VC.VC.opendb
+
+# VS Code (keep shared settings if added)
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local / secrets
+*.local.*
+.env
+.env.*
+
+# Deploy scripts (local paths)
+deploy.bat
+deploy.ps1
+
+# Cursor AI
+.cursor/
